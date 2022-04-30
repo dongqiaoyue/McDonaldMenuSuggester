@@ -1,6 +1,7 @@
 # McDonaldMenuSuggester
 
 ***INFO 6205 Final Project Idea***
+
 **Kun Li, Zongyao Li, Dongqiao Yue**
 
 
