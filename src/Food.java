@@ -6,6 +6,7 @@ public class Food implements Comparable<Food>{
     /**
      * The attributes of nutrition
      */
+    
     private int calories,
             caloriesFromFat,
             cholesterol,
@@ -67,6 +68,67 @@ public class Food implements Comparable<Food>{
         this.ironDailyValue = ironDailyValue;
     }
 
+    public int getIndex() {
+        return this.index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+    public void setCategory(String category) {
+        this.category = category;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setServingSize(String servingSize) {
+        this.servingSize = servingSize;
+    }
+    public void setCalories(int calories) {
+        this.calories = calories;
+    }
+    public void setCaloriesFromFat(int caloriesFromFat) {
+        this.caloriesFromFat = caloriesFromFat;
+    }
+    public void setCholesterol(int cholesterol) {
+        this.cholesterol = cholesterol;
+    }
+    public void setSodium(int sodium) {
+        this.sodium = sodium;
+    }
+    public void setCarbohydrates(int carbohydrates) {
+        this.carbohydrates = carbohydrates;
+    }
+    public void setDietaryFiber(int dietaryFiber) {
+        this.dietaryFiber = dietaryFiber;
+    }
+    public void setSugars(int sugars) {
+        this.sugars = sugars;
+    }
+    public void setProtein(int protein) {
+        this.protein = protein;
+    }
+    public void setVaDailyValue(int vaDailyValue) {
+        this.vaDailyValue = vaDailyValue;
+    }
+    public void setVcDailyValue(int vcDailyValue) {
+        this.vcDailyValue = vcDailyValue;
+    }
+    public void setCalciumDailyValue(int calciumDailyValue) {
+        this.calciumDailyValue = calciumDailyValue;
+    }
+    public void setIronDailyValue(int ironDailyValue) {
+        this.ironDailyValue = ironDailyValue;
+    }
+    public void setTransFat(double transFat) {
+        this.transFat = transFat;
+    }
+    public void setSaturatedFat(double saturatedFat) {
+        this.saturatedFat = saturatedFat;
+    }
+    public void setTotalFat(double totalFat) {
+        this.totalFat = totalFat;
+    }
 
     public String getName() {
         return name;

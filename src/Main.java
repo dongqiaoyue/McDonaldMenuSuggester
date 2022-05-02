@@ -6,27 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
+        Utils utils = new Utils();
         List<Food> items = new ArrayList<>();
-        BufferedReader in = null;
-        String csvLine = null;
         try {
-            System.out.println("\t\tReading from file \"./src/menu.csv\":");
-            in = new BufferedReader(new FileReader("./src/menu.csv"));
-            int index = 0;
-            csvLine = in.readLine();
-            while((csvLine = in.readLine()) != null) {
-//                System.out.println(csvLine);
-                items.add(new Food(index++, csvLine));
-            }
-            in.close();
-        } catch (FileNotFoundException e) {
-            System.err.println("\t\tNo such file exists!");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println("\t\tI/O stream err.");
-            e.printStackTrace();
+            items = utils.readCsv();
+        } catch (Exception e) {
+            // TODO: handle exception
         }
-//        System.out.println(items);
+        int[] selected = {0,1,2,6,10,56,57,58,59,70,80,86,12,13,14,15,17,21,31,41,51};
+        Algorithm algorithm = new Algorithm(items,selected,Algorithm.Normal);
+        algorithm.getOverallPlan();
     }
 }
