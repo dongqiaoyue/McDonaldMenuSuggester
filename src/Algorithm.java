@@ -1,4 +1,5 @@
-import java.text.DecimalFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class Algorithm {
     public List<Food> menu;
@@ -17,14 +17,14 @@ public class Algorithm {
     public List<Food> mainFood;
     public int limitCalories;
     public int timeForRandom = 50;
-    public int resultCount;
+    public int resultCount = 10;
     public final static String Protein = "protein";
     public final static String Calcium = "calcium";
-    public final static String Iron = "Iron";
+    public final static String Iron = "iron";
     public final static String VitaminA = "vitaminA";
     public final static String VitaminC = "vitaminC";
     public final static int Normal = 2300;
-    public final static int Fitness = 2700;
+    public final static int Fitness = 2800;
 
     public Algorithm(List<Food> all, List<Integer> dislikes, int limitCalories) {
         this.menu = all;
@@ -113,7 +113,7 @@ public class Algorithm {
         return res;
     }
 
-    public void getOverallPlan() {
+    public List<FoodPlan> getOverallPlan() {
         List<Food> proten_list = getNurtritionMaxPlan(Protein);
         removeRepeatedCategory(proten_list);
         List<Food> calcium_list = getNurtritionMaxPlan(Calcium);
@@ -139,9 +139,6 @@ public class Algorithm {
         for (Food food : iron_list) {
             freq.put(food.getIndex(), freq.getOrDefault(food.getIndex(), 0) + 1);
         }
-        // Stream<Map.Entry<Integer, Integer>> sorted = freq.entrySet().stream()
-        // .sorted(Map.Entry.comparingByValue());
-        // sorted.forEach(System.out::println);
         FoodPlan test_plan = shuffleAndCombine(proten_list, calcium_list, vitaminA_list, vitaminC_list, iron_list);
         evaluatePlan(test_plan);
         List<FoodPlan> ranking = new ArrayList<>();
@@ -159,7 +156,18 @@ public class Algorithm {
                 }
             }
         });
-        int b = 3;
+        Normalization normalization = new Normalization();
+        normalization.normalize(ranking);
+        Iterator<FoodPlan> iterator = ranking.iterator(); 
+        int i = 0;
+        while(iterator.hasNext()) {
+            i++;
+            iterator.next();
+            if(i>this.resultCount) {
+                iterator.remove();
+            }
+        }
+        return ranking;
     }
 
     public FoodPlan shuffleAndCombine(List<Food> proten_list, List<Food> calcium_list, List<Food> vitaminA_list,
@@ -206,36 +214,40 @@ public class Algorithm {
         }
     }
 
-    public int calculateCaloriesLevel(int total_calories,List<String> desc) {
+    public int calculateCaloriesLevel(int total_calories, List<String> desc) {
         int gap = Math.abs(limitCalories - total_calories);
         int res;
-        double deviation_val = (1.0*gap/limitCalories);
-        int d = (int)(deviation_val*100);
+        double deviation_val = (1.0 * gap / limitCalories);
+        int d = (int) (deviation_val * 100);
         if (d <= 5) {
             res = 0;
-        } else if (d<=10&&d>5) {
+        } else if (d <= 10 && d > 5) {
             res = -5;
-        } else if (d<=15&&d>10) {
+        } else if (d <= 15 && d > 10) {
             res = -10;
-        } else if (d<=20&&d>15) {
+        } else if (d <= 20 && d > 15) {
             res = -25;
+        } else if(d>20 && d<=30){
+            res = -40;
         } else {
-            res = -50;
+            res = -75;
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("Total Calories||Standard Calories For " + (this.limitCalories == 2300 ? "Normal":"Fitness")+":");
+        sb.append("Total Calories||Standard Calories For " + (this.limitCalories == 2300 ? "Normal" : "Fitness") + ":");
         sb.append(String.valueOf(total_calories) + "||" + String.valueOf(this.limitCalories));
         sb.append("    ");
         sb.append("deduction:" + String.valueOf(-res));
         desc.add(sb.toString());
         return res;
     }
+
     public int getExceedRadio(double val, double standard, int scoreForThis) {
         double gap = val - standard;
-        double deviation_val = (1.0*gap/standard);
-        int radio = (int)(deviation_val*100);
+        double deviation_val = (1.0 * gap / standard);
+        int radio = (int) (deviation_val * 100);
         return radio;
     }
+
     public void evaluatePlan(FoodPlan test_plan) {
         double score = 100;
         double extra_score = 0;
@@ -264,8 +276,8 @@ public class Algorithm {
         }
         score += calculateCaloriesLevel(total_calories, desc);
         if (total_sodium >= 2300) {
-            int exceed_radio = getExceedRadio(total_sodium*1.0,2300,25);
-            int deduction = exceed_radio>75? 50:(20*exceed_radio/100);
+            int exceed_radio = getExceedRadio(total_sodium * 1.0, 2300, 25);
+            int deduction = exceed_radio > 75 ? 50 : (20 * exceed_radio / 100);
             score -= deduction;
             StringBuilder sb = new StringBuilder();
             sb.append("Total Sodium||Standard sodium:");
@@ -275,8 +287,8 @@ public class Algorithm {
             desc.add(sb.toString());
         }
         if (total_cholesterol >= 300) {
-            int exceed_radio = getExceedRadio(total_cholesterol*1.0,300,25);
-            int deduction = exceed_radio>100? 50:(20*exceed_radio/100);
+            int exceed_radio = getExceedRadio(total_cholesterol * 1.0, 300, 25);
+            int deduction = exceed_radio > 100 ? 50 : (20 * exceed_radio / 100);
             score -= deduction;
             StringBuilder sb = new StringBuilder();
             sb.append("Total Cholesterol||Standard Cholesterol:");
@@ -286,8 +298,8 @@ public class Algorithm {
             desc.add(sb.toString());
         }
         if (total_satured_fat >= 20) {
-            int exceed_radio = getExceedRadio(total_satured_fat*1.0,20,25);
-            int deduction = exceed_radio>100? 50:(20*exceed_radio/100);
+            int exceed_radio = getExceedRadio(total_satured_fat * 1.0, 20, 25);
+            int deduction = exceed_radio > 100 ? 50 : (20 * exceed_radio / 100);
             score -= deduction;
             StringBuilder sb = new StringBuilder();
             sb.append("Total Satured Fat||Standard Satured Fat:");
@@ -297,8 +309,8 @@ public class Algorithm {
             desc.add(sb.toString());
         }
         if (total_sugar >= 36) {
-            int exceed_radio = getExceedRadio(total_sugar*1.0,36,25);
-            int deduction = exceed_radio>100? 50:(20*exceed_radio/100);
+            int exceed_radio = getExceedRadio(total_sugar * 1.0, 36, 25);
+            int deduction = exceed_radio > 100 ? 50 : (20 * exceed_radio / 100);
             score -= deduction;
             StringBuilder sb = new StringBuilder();
             sb.append("Total Sugar||Standard Sugar:");
@@ -322,7 +334,7 @@ public class Algorithm {
             sb.append("Total Dietary Fiber:");
             sb.append(String.valueOf(total_dietary_fiber));
             sb.append("    ");
-            sb.append("Extra Points:" + String.valueOf((double)total_dietary_fiber * 0.4));
+            sb.append("Extra Points:" + String.valueOf(format1(total_dietary_fiber * 0.4)));
             desc.add(sb.toString());
         }
         test_plan.setOriginal_score(score);
@@ -330,6 +342,13 @@ public class Algorithm {
         test_plan.setTotal_score(score + extra_score);
         test_plan.setCalories(total_calories);
         test_plan.setDesc(desc);
+    }
+
+    public static String format1(double value) {
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(1, RoundingMode.HALF_UP);
+        return bd.toString();
     }
 
     public void getRandomFood(Set<Integer> set, List<Food> list) {

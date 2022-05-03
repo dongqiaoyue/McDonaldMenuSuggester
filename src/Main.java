@@ -20,6 +20,8 @@ public class Main {
         dislikes.add(1);
         Algorithm algorithm = new Algorithm(items,dislikes,Algorithm.Normal);
         algorithm.setTimeForRandom(100);
-        algorithm.getOverallPlan();
+        algorithm.setResultCount(5);
+        List<FoodPlan> plans = algorithm.getOverallPlan();
+        System.out.println("Algorithm has executed");
     }
 }

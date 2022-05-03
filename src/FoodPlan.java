@@ -5,8 +5,18 @@ public class FoodPlan {
     double original_score;
     double extra_score;
     double total_score;
+    double normalized_score;
     double calories;
     List<String> desc;
+
+    public double getNormalized_score() {
+        return this.normalized_score;
+    }
+
+    public void setNormalized_score(double normalized_score) {
+        this.normalized_score = normalized_score;
+    }
+
     public List<String> getDesc() {
         return this.desc;
     }
