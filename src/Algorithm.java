@@ -241,7 +241,7 @@ public class Algorithm {
         return res;
     }
 
-    public int getExceedRadio(double val, double standard, int scoreForThis) {
+    public int getExceedRadio(double val, double standard) {
         double gap = val - standard;
         double deviation_val = (1.0 * gap / standard);
         int radio = (int) (deviation_val * 100);
@@ -275,8 +275,24 @@ public class Algorithm {
             category.put(food.getCategory(), 1);
         }
         score += calculateCaloriesLevel(total_calories, desc);
+        if (category.size() <= 4) {
+            score -= 15;
+            StringBuilder sb = new StringBuilder();
+            sb.append("Total Category:");
+            sb.append(String.valueOf(category.size()));
+            sb.append("    ");
+            sb.append("diversity deduction(N<=4):" + "15");
+            desc.add(sb.toString());
+        }else{
+            StringBuilder sb = new StringBuilder();
+            sb.append("Total Category:");
+            sb.append(String.valueOf(category.size()));
+            sb.append("    ");
+            sb.append("diversity deduction(N>4):" + "0");
+            desc.add(sb.toString());
+        }
         if (total_sodium >= 2300) {
-            int exceed_radio = getExceedRadio(total_sodium * 1.0, 2300, 25);
+            int exceed_radio = getExceedRadio(total_sodium * 1.0, 2300);
             int deduction = exceed_radio > 75 ? 50 : (20 * exceed_radio / 100);
             score -= deduction;
             StringBuilder sb = new StringBuilder();
@@ -285,9 +301,16 @@ public class Algorithm {
             sb.append("    ");
             sb.append("deduction:" + String.valueOf(deduction));
             desc.add(sb.toString());
+        }else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Total Sodium||Standard sodium:");
+            sb.append(String.valueOf(total_sodium) + "||" + String.valueOf(2300));
+            sb.append("    ");
+            sb.append("deduction:" + String.valueOf(0));
+            desc.add(sb.toString());
         }
         if (total_cholesterol >= 300) {
-            int exceed_radio = getExceedRadio(total_cholesterol * 1.0, 300, 25);
+            int exceed_radio = getExceedRadio(total_cholesterol * 1.0, 300);
             int deduction = exceed_radio > 100 ? 50 : (20 * exceed_radio / 100);
             score -= deduction;
             StringBuilder sb = new StringBuilder();
@@ -296,9 +319,16 @@ public class Algorithm {
             sb.append("    ");
             sb.append("deduction:" + String.valueOf(deduction));
             desc.add(sb.toString());
+        }else{
+            StringBuilder sb = new StringBuilder();
+            sb.append("Total Cholesterol||Standard Cholesterol:");
+            sb.append(String.valueOf(total_cholesterol) + "||" + String.valueOf(300));
+            sb.append("    ");
+            sb.append("deduction:" + String.valueOf(0));
+            desc.add(sb.toString());
         }
         if (total_satured_fat >= 20) {
-            int exceed_radio = getExceedRadio(total_satured_fat * 1.0, 20, 25);
+            int exceed_radio = getExceedRadio(total_satured_fat * 1.0, 20);
             int deduction = exceed_radio > 100 ? 50 : (20 * exceed_radio / 100);
             score -= deduction;
             StringBuilder sb = new StringBuilder();
@@ -307,9 +337,16 @@ public class Algorithm {
             sb.append("    ");
             sb.append("deduction:" + String.valueOf(deduction));
             desc.add(sb.toString());
+        }else{
+            StringBuilder sb = new StringBuilder();
+            sb.append("Total Satured Fat||Standard Satured Fat:");
+            sb.append(String.valueOf(total_satured_fat) + "||" + String.valueOf(20));
+            sb.append("    ");
+            sb.append("deduction:" + String.valueOf(0));
+            desc.add(sb.toString());
         }
         if (total_sugar >= 36) {
-            int exceed_radio = getExceedRadio(total_sugar * 1.0, 36, 25);
+            int exceed_radio = getExceedRadio(total_sugar * 1.0, 36);
             int deduction = exceed_radio > 100 ? 50 : (20 * exceed_radio / 100);
             score -= deduction;
             StringBuilder sb = new StringBuilder();
@@ -318,16 +355,15 @@ public class Algorithm {
             sb.append("    ");
             sb.append("deduction:" + String.valueOf(deduction));
             desc.add(sb.toString());
-        }
-        if (category.size() <= 4) {
-            score -= 15;
+        }else{
             StringBuilder sb = new StringBuilder();
-            sb.append("Total Category:");
-            sb.append(String.valueOf(category.size()));
+            sb.append("Total Sugar||Standard Sugar:");
+            sb.append(String.valueOf(total_sugar) + "||" + String.valueOf(36));
             sb.append("    ");
-            sb.append("diversity deduction:" + "15");
+            sb.append("deduction:" + String.valueOf(0));
             desc.add(sb.toString());
         }
+        
         if (total_dietary_fiber >= 0) {
             extra_score += total_dietary_fiber * 0.4;
             StringBuilder sb = new StringBuilder();
@@ -335,6 +371,13 @@ public class Algorithm {
             sb.append(String.valueOf(total_dietary_fiber));
             sb.append("    ");
             sb.append("Extra Points:" + String.valueOf(format1(total_dietary_fiber * 0.4)));
+            desc.add(sb.toString());
+        }else{
+            StringBuilder sb = new StringBuilder();
+            sb.append("Total Dietary Fiber:");
+            sb.append(String.valueOf(total_dietary_fiber));
+            sb.append("    ");
+            sb.append("Extra Points:0");
             desc.add(sb.toString());
         }
         test_plan.setOriginal_score(score);
