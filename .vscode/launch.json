@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "Launch Normalization",
+            "request": "launch",
+            "mainClass": "Normalization",
+            "projectName": "McDonaldMenuSuggester_e396fa12"
+        },
+        {
             "name": "Java",
             "type": "java",
             "request": "launch",

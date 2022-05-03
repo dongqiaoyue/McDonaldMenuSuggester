@@ -15,11 +15,10 @@ public class Main {
             // TODO: handle exception
         }
         // int[] selected = {0,1,2,6,10,56,57,58,59,70,80,86,12,13,14,15,17,21,31,41,51};
-        int[] selected = new int[260];
-        for(int i=0;i<=259;i++) {
-            selected[i] = i;
-        }
-        Algorithm algorithm = new Algorithm(items,selected,Algorithm.Normal);
+        List<Integer> dislikes = new ArrayList<>();
+        dislikes.add(0);
+        dislikes.add(1);
+        Algorithm algorithm = new Algorithm(items,dislikes,Algorithm.Normal);
         algorithm.setTimeForRandom(100);
         algorithm.getOverallPlan();
     }

@@ -26,18 +26,21 @@ public class Algorithm {
     public final static int Normal = 2300;
     public final static int Fitness = 2700;
 
-    public Algorithm(List<Food> all, int[] input, int limitCalories) {
+    public Algorithm(List<Food> all, List<Integer> dislikes, int limitCalories) {
         this.menu = all;
-        this.options = getOptions(input);
+        this.options = getOptions(dislikes);
         this.mainFood = getMainFood();
         this.limitCalories = limitCalories;
     }
+
     public void setTimeForRandom(int timeForRandom) {
         this.timeForRandom = timeForRandom;
     }
+
     public void setResultCount(int resultCount) {
         this.resultCount = resultCount;
     }
+
     public List<Food> getMainFood() {
         List<Food> mainFood = new ArrayList<>();
         for (Food food : this.options) {
@@ -50,10 +53,12 @@ public class Algorithm {
         return mainFood;
     }
 
-    public List<Food> getOptions(int[] input) {
+    public List<Food> getOptions(List<Integer> dislikes) {
         List<Food> options = new ArrayList<>();
-        for (int index : input) {
-            options.add(menu.get(index));
+        for (Food food : menu) {
+            if (!dislikes.contains(food.getIndex())) {
+                options.add(food);
+            }
         }
         return options;
     }
@@ -118,7 +123,6 @@ public class Algorithm {
         List<Food> vitaminC_list = getNurtritionMaxPlan(VitaminC);
         removeRepeatedCategory(vitaminC_list);
         List<Food> iron_list = getNurtritionMaxPlan(Iron);
-        removeRepeatedCategory(vitaminC_list);
         Map<Integer, Integer> freq = new HashMap<>();
         for (Food food : proten_list) {
             freq.put(food.getIndex(), freq.getOrDefault(food.getIndex(), 0) + 1);
@@ -202,32 +206,36 @@ public class Algorithm {
         }
     }
 
-    public int calculateCaloriesLevel(int total_calories) {
-        // 0 0
-        // <>200 -4
-        // <>300 -10
-        // <>400 -18
-        // <>600 -30
-        // sb.append("Total Sodium||Standard sodium:");
-        //     sb.append(String.valueOf(total_sodium)+"||"+String.valueOf(2300));
-        //     sb.append("    ");
-        //     DecimalFormat df = new DecimalFormat("#.0");
-        //     sb.append("deduction:" + String.valueOf(df.format((total_sodium - 2300) * 0.02)));
-        //     desc.add(sb.toString());
+    public int calculateCaloriesLevel(int total_calories,List<String> desc) {
         int gap = Math.abs(limitCalories - total_calories);
-        if (gap < 100) {
-            return 0;
-        } else if (gap >= 200 && gap < 300) {
-            return -4;
-        } else if (gap >= 300 && gap < 400) {
-            return -10;
-        } else if (gap >= 400 && gap < 600) {
-            return -30;
+        int res;
+        double deviation_val = (1.0*gap/limitCalories);
+        int d = (int)(deviation_val*100);
+        if (d <= 5) {
+            res = 0;
+        } else if (d<=10&&d>5) {
+            res = -5;
+        } else if (d<=15&&d>10) {
+            res = -10;
+        } else if (d<=20&&d>15) {
+            res = -25;
         } else {
-            return -50;
+            res = -50;
         }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Total Calories||Standard Calories For " + (this.limitCalories == 2300 ? "Normal":"Fitness")+":");
+        sb.append(String.valueOf(total_calories) + "||" + String.valueOf(this.limitCalories));
+        sb.append("    ");
+        sb.append("deduction:" + String.valueOf(-res));
+        desc.add(sb.toString());
+        return res;
     }
-
+    public int getExceedRadio(double val, double standard, int scoreForThis) {
+        double gap = val - standard;
+        double deviation_val = (1.0*gap/standard);
+        int radio = (int)(deviation_val*100);
+        return radio;
+    }
     public void evaluatePlan(FoodPlan test_plan) {
         double score = 100;
         double extra_score = 0;
@@ -254,42 +262,49 @@ public class Algorithm {
             total_calories += food.getCalories();
             category.put(food.getCategory(), 1);
         }
-        score += calculateCaloriesLevel(total_calories);
+        score += calculateCaloriesLevel(total_calories, desc);
         if (total_sodium >= 2300) {
-            score -= (total_sodium - 2300) * 0.01;
+            int exceed_radio = getExceedRadio(total_sodium*1.0,2300,25);
+            int deduction = exceed_radio>75? 50:(20*exceed_radio/100);
+            score -= deduction;
             StringBuilder sb = new StringBuilder();
             sb.append("Total Sodium||Standard sodium:");
-            sb.append(String.valueOf(total_sodium)+"||"+String.valueOf(2300));
+            sb.append(String.valueOf(total_sodium) + "||" + String.valueOf(2300));
             sb.append("    ");
-            DecimalFormat df = new DecimalFormat("#.0");
-            sb.append("deduction:" + String.valueOf(df.format((total_sodium - 2300) * 0.02)));
+            sb.append("deduction:" + String.valueOf(deduction));
             desc.add(sb.toString());
         }
         if (total_cholesterol >= 300) {
-            score -= (total_cholesterol - 300) * 0.05;
+            int exceed_radio = getExceedRadio(total_cholesterol*1.0,300,25);
+            int deduction = exceed_radio>100? 50:(20*exceed_radio/100);
+            score -= deduction;
             StringBuilder sb = new StringBuilder();
             sb.append("Total Cholesterol||Standard Cholesterol:");
-            sb.append(String.valueOf(total_cholesterol)+"||"+String.valueOf(300));
+            sb.append(String.valueOf(total_cholesterol) + "||" + String.valueOf(300));
             sb.append("    ");
-            sb.append("deduction:" + String.valueOf((total_cholesterol - 300) * 0.05));
+            sb.append("deduction:" + String.valueOf(deduction));
             desc.add(sb.toString());
         }
         if (total_satured_fat >= 20) {
-            score -= (total_satured_fat - 20) * 1;
+            int exceed_radio = getExceedRadio(total_satured_fat*1.0,20,25);
+            int deduction = exceed_radio>100? 50:(20*exceed_radio/100);
+            score -= deduction;
             StringBuilder sb = new StringBuilder();
             sb.append("Total Satured Fat||Standard Satured Fat:");
-            sb.append(String.valueOf(total_satured_fat)+"||"+String.valueOf(20));
+            sb.append(String.valueOf(total_satured_fat) + "||" + String.valueOf(20));
             sb.append("    ");
-            sb.append("deduction:" + String.valueOf((total_satured_fat - 20) * 1.0));
+            sb.append("deduction:" + String.valueOf(deduction));
             desc.add(sb.toString());
         }
         if (total_sugar >= 36) {
-            score -= (total_sugar - 36) * 1;
+            int exceed_radio = getExceedRadio(total_sugar*1.0,36,25);
+            int deduction = exceed_radio>100? 50:(20*exceed_radio/100);
+            score -= deduction;
             StringBuilder sb = new StringBuilder();
             sb.append("Total Sugar||Standard Sugar:");
-            sb.append(String.valueOf(total_sugar)+"||"+String.valueOf(36));
+            sb.append(String.valueOf(total_sugar) + "||" + String.valueOf(36));
             sb.append("    ");
-            sb.append("deduction:" + String.valueOf((total_sugar - 36) * 1.0));
+            sb.append("deduction:" + String.valueOf(deduction));
             desc.add(sb.toString());
         }
         if (category.size() <= 4) {
@@ -302,12 +317,12 @@ public class Algorithm {
             desc.add(sb.toString());
         }
         if (total_dietary_fiber >= 0) {
-            extra_score += total_dietary_fiber * 0.75;
+            extra_score += total_dietary_fiber * 0.4;
             StringBuilder sb = new StringBuilder();
             sb.append("Total Dietary Fiber:");
             sb.append(String.valueOf(total_dietary_fiber));
             sb.append("    ");
-            sb.append("Extra Points:" + String.valueOf(total_dietary_fiber * 0.75));
+            sb.append("Extra Points:" + String.valueOf((double)total_dietary_fiber * 0.4));
             desc.add(sb.toString());
         }
         test_plan.setOriginal_score(score);
