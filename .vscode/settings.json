@@ -1,0 +1,10 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "libs/jackson-core-asl-1.9.13.jar",
+        "libs/jackson-databind-2.12.5.jar",
+        "libs/jackson-mapper-asl-1.9.13.jar",
+        "libs/jackson-annotations-2.12.5.jar",
+        "libs/jackson-core-2.12.5.jar"
+    ]
+}
